@@ -23,6 +23,7 @@ Envirionment configuration
 * Clone this repository 
 * Create MySQL database named 'medical'
 * Verify .env file to configure DB variables
+* Run 'composer update'
 * Run 'php artisan migrate'
 * Run 'php artisan db:seed'
 
