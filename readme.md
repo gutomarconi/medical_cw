@@ -24,6 +24,7 @@ Envirionment configuration
 * Create MySQL database named 'medical'
 * Verify .env file to configure DB variables
 * Run 'composer update'
+* Run 'npm install'
 * Run 'php artisan migrate'
 * Run 'php artisan db:seed'
 
