@@ -20,6 +20,16 @@
         "resolve-url-loader": "^2.3.1",
         "sass": "^1.15.2",
         "sass-loader": "^7.1.0",
-        "vue": "^2.5.17"
+        "vue": "^2.5.17",
+        "vue-template-compiler": "^2.6.10",
+        "vuelidate": "^0.7.4"
+    },
+    "dependencies": {
+        "bootstrap-vue": "^2.0.0-rc.16",
+        "materialize-css": "^1.0.0-rc.2",
+        "moment": "^2.24.0",
+        "vue-jquery-mask": "^1.0.3",
+        "vue-material": "^1.0.0-beta-10.2",
+        "vue-router": "^3.0.2"
     }
 }

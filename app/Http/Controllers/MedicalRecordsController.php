@@ -2,26 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MedicalRecordsResource;
 use App\MedicalRecords;
 use App\People;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MedicalRecordsController extends Controller
 {
-    public function __construct()
+    public function getMedicalRecords(Request $request, $peopleId)
     {
-        //$this->middleware('auth');
-    }
 
-    public function index($people)
-    {
-        return view('viewappointment', ['allRecords' => MedicalRecords::query()->where("people_id",$people)->get(), 'people_id' => $people]);
-    }
-
-    public function create($peopleId)
-    {
-        $people = People::findOrFail($peopleId);
-        return view('createappointment', ['people' => $people]);
+        $medicalRecords = DB::table('medical_records')
+            ->where([['status', '<>', 'C'],['people_id', '=', $peopleId]])
+            ->get();
+        return MedicalRecordsResource::collection($medicalRecords);
     }
 
     public function store(Request $request)
@@ -36,17 +31,10 @@ class MedicalRecordsController extends Controller
 
         $meAppointment->save();
 
-        return redirect('/Peoples');
-    }
-
-    public function show($people)
-    {
-        return view('viewappointment', ['allRecords' => MedicalRecords::query()->where("people_id",$people)->get(), 'people_id' => $people]);
-    }
-
-    public function edit($people, $medicalRecords)
-    {
-        return view('createappointment',['medrecords' => MedicalRecords::findOrFail($medicalRecords), 'people' => People::findOrFail($people)]);
+        if ((new \Illuminate\Http\Request)->wantsJson()) {
+            return Collection;
+        }
+        else return redirect('/Peoples');
     }
 
     public function updateStatus ($medicalRecords, $status){
@@ -54,30 +42,9 @@ class MedicalRecordsController extends Controller
         $medRecords->status = $status;
         $medRecords->save();
 
-        return redirect('/Peoples');
-    }
-    public function update(Request $request, $medicalRecords)
-    {
-        $people = People::findOrFail($request->get('people_id'));
-
-        $datetime = date("Y-m-d H:i:s",strtotime(str_replace('/','-',$request->get('date_appointment'))));
-
-        $meAppointment = MedicalRecords::findOrFail($medicalRecords);
-        $meAppointment->date_appointment = $datetime;
-        $meAppointment->notes = $request->get('notes');
-        $meAppointment->status = $request->get('status');
-        $meAppointment->People()->associate($people);
-
-        $meAppointment->save();
-
-        return redirect('/Peoples');
-
-    }
-
-    public function destroy($medicalRecords)
-    {
-        $medRecords = MedicalRecords::findOrFail($medicalRecords);
-        $medRecords ->delete();
-        return redirect('/Peoples');
+        if ((new \Illuminate\Http\Request)->wantsJson()) {
+            return Collection;
+        }
+        else return redirect('/Peoples');
     }
 }

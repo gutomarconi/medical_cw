@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PeopleResource;
 use App\MedicalRecords;
 use App\People;
 use Illuminate\Contracts\Session\Session;
@@ -10,19 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class PeopleController extends Controller
 {
-    public function __construct()
+    public function getPeoples(Request $request)
     {
-        //$this->middleware('auth');
-    }
-
-    public function index()
-    {
-        return view('viewpeople', ['allPeoples' => People::all()]);
-    }
-
-    public function create()
-    {
-        return view('createpeople');
+        $peoples = People::all();
+        return PeopleResource::collection($peoples);
     }
 
     public function store(Request $request)
@@ -38,17 +30,10 @@ class PeopleController extends Controller
             'phone_number' => ($request->get('phone_number'))
         ]);
 
-        return redirect('/Peoples');
-    }
-
-    public function show($person)
-    {
-        return view('showpeople', ['people' => People::findOrFail($person)]);
-    }
-
-    public function edit($person)
-    {
-        return view('createpeople',['people' => People::findOrFail($person)]);
+        if ((new \Illuminate\Http\Request)->wantsJson()) {
+            return Collection;
+        }
+        else return redirect('/Peoples');
     }
 
     private function formatDate ($date){
@@ -69,27 +54,40 @@ class PeopleController extends Controller
 
         $people->save();
 
-        return redirect('/Peoples');
+        if ((new \Illuminate\Http\Request)->wantsJson()) {
+            return Collection;
+        }
+        else return redirect('/Peoples');
     }
 
     public function validateDelete($person){
         $date = new \DateTime();
         $date = $date->format('Y-m-d H:i:s');
         $records = MedicalRecords::query()->where([['date_appointment', '>=', $date],['people_id', '=', $person], ['status', '<>', 'C']])->get();
-        if (count($records) ===0) return true;
-        else return false;
+        if (count($records) ===0) return json_encode(array('canDelete' => true));
+        else return json_encode(array('canDelete' => false));
+    }
+
+    public function validateDelete1($person){
+        $date = new \DateTime();
+        $date = $date->format('Y-m-d H:i:s');
+        $records = MedicalRecords::query()->where([['date_appointment', '>=', $date],['people_id', '=', $person], ['status', '<>', 'C']])->get();
+        if ((new \Illuminate\Http\Request)->wantsJson()) {
+            return Collection;
+        }
+        else {
+            if (count($records) ===0) return true;
+            else return false;
+        }
     }
 
     public function destroy($person)
     {
-        if (!$this->validateDelete($person)) {
-            return view('layouts/error', ['error' => "This patient have outstanding appointments. Cannot delete!"]);
-        }
-        else {
+        if ($this->validateDelete1($person)) {
             $people = People::findOrFail($person);
             $people->delete();
-            return redirect('/Peoples');
         }
+        return redirect('/');
     }
 
 }

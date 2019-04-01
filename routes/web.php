@@ -12,17 +12,13 @@
 */
 
 Route::get('/', function () {
-    //return view('welcome');
-    return redirect()->action('PeopleController@index');
+    return view('patient');
 });
 
 Route::resource('/Peoples', 'PeopleController');
 Route::resource('/Medrecords', 'MedicalRecordsController',['except' => ['create', 'edit']]);
-Route::get('/medrecords/create/{people_id}', 'MedicalRecordsController@create')->name('Medrecords.create');
-Route::get('/medrecords/{people_id}', 'MedicalRecordsController@index')->name('Medrecords.get');
-Route::get('/medrecords/{people_id}/{medrecords_id}', 'MedicalRecordsController@edit')->name('Medrecords.edit');
 Route::get('/Medrecords.cancel/{medrecords_id}/{status}', 'MedicalRecordsController@updateStatus')->name('Medrecords.cancel');
-
-//Auth::routes();
-
+Route::get('patients', 'PeopleController@getPeoples')->name('patients.list');
+Route::get('medicalrecords/{people_id}', 'MedicalRecordsController@getMedicalRecords')->name('medicalrecords.list');
+Route::get('validateDelete/{people_id}', 'PeopleController@validateDelete')->name('validate.delete');
 Route::get('/home', 'HomeController@index')->name('home');
